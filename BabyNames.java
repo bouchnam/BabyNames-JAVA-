@@ -45,7 +45,7 @@ public class BabyNames {
     
     public int getRank(int year, String name, String gender){
         int count = 0;
-        FileResource fr = new FileResource("us_babynames_small/testing/yob" + year +"short.csv");
+        FileResource fr = new FileResource("us_babynames/us_babynames_by_year/yob" + year +".csv");
         for (CSVRecord record : fr.getCSVParser(false)){
             if (record.get(1).equals(gender)){
                 count++;
@@ -59,7 +59,7 @@ public class BabyNames {
     
     public String getName(int year, int rank, String gender){
         int count = 0;
-        FileResource fr = new FileResource("us_babynames_small/testing/yob" + year +"short.csv");
+        FileResource fr = new FileResource("us_babynames/us_babynames_by_year/yob" + year +".csv");
         for (CSVRecord record : fr.getCSVParser(false)){
             if (record.get(1).equals(gender)){
                 count++;
@@ -111,35 +111,51 @@ public class BabyNames {
        return (double)somme/count;
     }
     public int getTotalBirthsRankedHigher(int year, String name, String gender){
-       int somme = 0;
-       int rank = getRank(year, name, gender);
-       FileResource fr = new FileResource("us_babynames_small/testing/yob" + year +"short.csv");
-       for (CSVRecord record : fr.getCSVParser()){
-           int currentRank = getRank(year, record.get(0), gender);
-           if (record.get(1).equals(gender) && currentRank < rank){
-               somme += Integer.parseInt(record.get(2));
-           }
-       }
-       return somme;
+        int rank=getRank(year,name,gender);
+        String fileName="us_BabyNames/us_babynames_by_year/yob"+year+".csv";
+        FileResource fr=new FileResource(fileName);
+        int counter=1,births=0,totalBirths=0;
+        for(CSVRecord rec:fr.getCSVParser(false))
+        {
+            if(counter<rank && gender.equalsIgnoreCase(rec.get(1)))
+            {
+                counter++;
+                births=Integer.parseInt(rec.get(2));
+                totalBirths+=births;
+            }
+        }
+        return totalBirths;
     }
     public void testTotalBirths () {
         //FileResource fr = new FileResource();
-        FileResource fr = new FileResource("us_babynames_small/testing/yob2014short.csv");
+        FileResource fr = new FileResource("us_babynames/us_babynames_by_year/yob1905.csv");
         totalBirths(fr);
     }
-    public void testwhatNameinYear(){
-        System.out.println("Mason born in 2012 would be " + whatIsNameInYear("Mason",2012, 2013, "M") + " if he was born in 2013");
+    public void testRank(){
+        System.out.println("the rank is : " + getRank(1971,"Frank", "M"));
     }
     
+    public void testName(){
+        System.out.println("the rank is : " + getName(1980,350, "F"));
+        System.out.println("the rank is : " + getName(1982,450, "M"));
+    }
+    
+    public void testwhatNameinYear(){
+        System.out.println("Susan born in 1972 would be " + whatIsNameInYear("Suzan",1972, 2014, "F") + " if he was born in 2014");
+        System.out.println("Owen born in 1974 would be " + whatIsNameInYear("Owen",1974, 2014, "M") + " if he was born in 2014");
+    }
+        
     public void testwhatyear(){
-        System.out.println("THE YEAROF THE HIGHEST RANK IS : " + yearOfHighestRank("Mason", "M"));
+        System.out.println("THE YEAR OF THE HIGHEST RANK IS : " + yearOfHighestRank("Genevieve", "F"));
+        System.out.println("THE YEAR OF THE HIGHEST RANK IS : " + yearOfHighestRank("Mich", "M")); 
     }
     
     public void testAverageRank(){
-        System.out.println("The average of these files is: " + getAverageRank("Jacb", "M"));
+        System.out.println("The average of these files is: " + getAverageRank("Susan", "F"));
+        System.out.println("The average of these files is: " + getAverageRank("Robert", "M"));
     }
     
     public void testHigher(){
-        System.out.println("The sum of the names ranked higher than the currentrank is : " + getTotalBirthsRankedHigher(2012,"Ethan", "M"));
+        System.out.println("The sum of the names ranked higher than the currentrank is : " + getTotalBirthsRankedHigher(1990,"Emily", "F"));
     }
 }
