@@ -1,5 +1,6 @@
 import edu.duke.*;
 import org.apache.commons.csv.*;
+import java.io.*;
 
 public class BabyNames {
     public void printNames () {
@@ -69,12 +70,76 @@ public class BabyNames {
         }
         return "NO NAME";
     }
+    
+    public String whatIsNameInYear(String name, int year, int newYear, String gender){
+        int rank = getRank(year, name, gender);
+        return getName(newYear, rank, gender);
+    }
+    
+    public int yearOfHighestRank(String name, String gender){
+       DirectoryResource dr = new DirectoryResource();
+       int year1 = -1;
+       double lowRank = Double.POSITIVE_INFINITY;
+       for (File f : dr.selectedFiles()){
+           String namef = f.getName();
+           int year = Integer.parseInt(namef.substring(3,7));
+           int rank = getRank(year, name, gender);
+           if (rank < lowRank){
+               lowRank = rank;
+               year1 = year;
+           }
+       }
+       return year1;
+    }
+    
+    public double getAverageRank(String name, String gender){
+       DirectoryResource dr = new DirectoryResource();
+       int somme = 0;
+       int count = 0;
+       for (File f : dr.selectedFiles()){
+           String namef = f.getName();
+           int year = Integer.parseInt(namef.substring(3,7));
+           int rank = getRank(year, name, gender);
+           if (rank != -1){
+               somme += rank;
+               count += 1;
+           }
+       }
+       if (somme <= 0){
+           return -1;
+       }
+       return (double)somme/count;
+    }
+    public int getTotalBirthsRankedHigher(int year, String name, String gender){
+       int somme = 0;
+       int rank = getRank(year, name, gender);
+       FileResource fr = new FileResource("us_babynames_small/testing/yob" + year +"short.csv");
+       for (CSVRecord record : fr.getCSVParser()){
+           int currentRank = getRank(year, record.get(0), gender);
+           if (record.get(1).equals(gender) && currentRank < rank){
+               somme += Integer.parseInt(record.get(2));
+           }
+       }
+       return somme;
+    }
     public void testTotalBirths () {
         //FileResource fr = new FileResource();
         FileResource fr = new FileResource("us_babynames_small/testing/yob2014short.csv");
         totalBirths(fr);
     }
-    public void testgetName(){
-        System.out.println("the name is :" + getName(2014, 5, "F"));
+    public void testwhatNameinYear(){
+        System.out.println("Mason born in 2012 would be " + whatIsNameInYear("Mason",2012, 2013, "M") + " if he was born in 2013");
+    }
+    
+    public void testwhatyear(){
+        System.out.println("THE YEAROF THE HIGHEST RANK IS : " + yearOfHighestRank("Mason", "M"));
+    }
+    
+    public void testAverageRank(){
+        System.out.println("The average of these files is: " + getAverageRank("Jacb", "M"));
+    }
+    
+    public void testHigher(){
+        System.out.println("The sum of the names ranked higher than the currentrank is : " + getTotalBirthsRankedHigher(2012,"Ethan", "M"));
     }
 }
